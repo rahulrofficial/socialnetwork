@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    
+<h1>{{profile.username}}</h1>
+{%if not is_owner %}
+
+{%if is_follower%}
+<h6>Following</h6>
+{%else%}
+<a href="">Follow</a>
+{%endif%}
+{%endif%}
+
+
+<h3>Followers: {{followers}}</h3>
+<h3>Following:{{following}}</h3>
+
+<h3>Self Page:{{is_owner}}</h3>
+<h3>Is follower:{{is_follower}}</h3>
+{% endblock %}

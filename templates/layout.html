@@ -1,0 +1,73 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>{% block title %}Social Network{% endblock %}</title>
+		<link href='static/styles.css' rel="stylesheet" />
+
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+			integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+			crossorigin="anonymous" />
+
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+			<link href="favicon.ico" rel="icon">
+
+			
+		{% block script %}
+		<script src='static/post.js'></script>
+		{% endblock %}
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<a class="navbar-brand" id="network">Network</a>
+
+			<div>
+				<ul class="navbar-nav mr-auto">					
+					<li class="nav-item">
+						<a class="nav-link" id="username"
+							><strong data-prof_id=""
+								></strong
+							></a
+						>
+					</li>
+					
+					<li class="nav-item">
+						<a class="btn btn-outline-info" id="allpost">All Posts</a>
+					</li>
+
+					
+					<li class="nav-item">
+						<a class="btn btn-outline-info ml-2" id="follow">Following</a>
+					</li>
+					<li class="nav-item" id="newpost">
+						<a class="btn btn-outline-info ml-2" id="newpost">New Post</a>
+					</li>
+					<li class="nav-item">
+						<a class="btn btn-outline-info ml-2" href=""
+							>Log Out</a
+						>
+					</li>
+					
+					<li class="nav-item">
+						<a class="btn btn-outline-info ml-2" href=""
+							>Log In</a
+						>
+					</li>
+					<li class="nav-item">
+						<a class="btn btn-outline-info ml-2" href=""
+							>Register</a
+						>
+					</li>
+					
+				</ul>
+			</div>
+		</nav>
+
+		<div class="body">{% block body %} {% endblock %}</div>
+	</body>
+</html>
