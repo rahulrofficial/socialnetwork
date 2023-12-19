@@ -97,12 +97,16 @@ def register():
     if request.method == "POST":
         # Ensure username was submitted
         username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
+        print(email)
         if not username:
             return  ("must provide username", 400)
         elif username in usernames:
             return  ("username already exists", 400)
+        elif not email:
+            return  ("must provide email", 400)
 
         # Ensure password was submitted
         elif not password:
@@ -114,7 +118,7 @@ def register():
 
         hashed_pass = generate_password_hash(password)
         success = db.execute(
-            "INSERT INTO users (username,hash) VALUES (?,?)", username, hashed_pass
+            "INSERT INTO users (username,hash,email) VALUES (?,?,?)", username, hashed_pass,email
         )
         if success:
             return redirect("/login")
