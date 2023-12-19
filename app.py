@@ -30,7 +30,44 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialising SQLAlchemy with Flask App
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-from models import Users,Posts
+
+# Declaring Model
+follow = db.Table(
+    'follow',
+    db.Column('following_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id'))
+)
+class Users(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    hash = db.Column(db.String(200),nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    first_name=db.Column(db.String(80), nullable=True)
+    last_name=db.Column(db.String(80), nullable=True)
+    profile_pic_addr=db.Column(db.String(200), nullable=True)
+    user_posts=db.relationship('Posts',backref='owner',lazy='dynamic')
+    followers = db.relationship('Users', 
+                                secondary = follow, 
+                                primaryjoin = (follow.c.following_id == id),
+                                secondaryjoin = (follow.c.follower_id == id),
+                                backref = 'following'
+                                )
+    def __repr__(self):
+        return '<User %r>' % self.username
+    
+    
+class Posts(db.Model):
+    __tablename__ = "posts"
+ 
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(150), nullable=False)
+    likes = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.current_timestamp())
+    person_id = db.Column(db.Integer, db.ForeignKey('users.id'),nullable=False)
+
+
+    
 
 @app.after_request
 def after_request(response):   
@@ -44,7 +81,23 @@ def after_request(response):
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    return render_template("index.html")
+    
+    
+    if request.method == "POST":
+        # Ensure username was submitted
+        if not request.form.get("current_post"):
+            return render_template("index.html",message="must provide a post")
+        print(request.form.get("current_post"))
+        post=Posts(
+            content=request.form.get("current_post"),
+            person_id=session["user_id"]
+        )
+        db.session.add(post)
+        db.session.commit()
+        print("Post added")
+        redirect("/")
+    posts=Posts.query.all()
+    return render_template("index.html",posts=posts)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -153,7 +206,13 @@ def register():
 
 
 
-
+@app.route("/test", methods=["GET", "POST"])
+def test():
+    
+    harry =Users.query.filter_by(username='harry').first()
+    ron=Users.query.filter_by(username='Ron').first()
+    print(ron.following)
+    return render_template("test.html")
 
 
 

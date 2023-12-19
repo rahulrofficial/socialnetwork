@@ -4,9 +4,9 @@
 
 <div id="compose-view">
     <h3 class="ml-3">New Post</h3>
-    <form data-type="post"  id="compose-form">
+    <form action="/"  method="post">
        
-        <textarea class="form-control w-75" id="compose-body" placeholder="What's happening?" autofocus></textarea>
+        <textarea class="form-control w-75" id="compose-body" name="current_post" placeholder="What's happening?" autofocus></textarea>
         <br>
         <input type="submit" id="submit_button" class="btn btn-primary"/>
     </form>
@@ -17,6 +17,9 @@
     
 </div>
 <div id="post-view">
+    {% for item in posts%}
+    <h5>{{item.owner.username}}</h5>
+    {%endfor%}
     
 </div>
 
