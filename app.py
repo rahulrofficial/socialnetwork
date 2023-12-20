@@ -1,12 +1,12 @@
 import os
 
 
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session,jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from helpers import login_required
-
+import json
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -79,7 +79,7 @@ def after_request(response):
 
 
 @app.route("/", methods=["GET", "POST"])
-@login_required
+
 def index():
     
     
@@ -96,8 +96,13 @@ def index():
         db.session.commit()
         print("Post added")
         redirect("/")
-    posts=Posts.query.all()
-    return render_template("index.html",posts=posts)
+    posts=Posts.query.order_by(Posts.created_at.desc()).all()
+    user_id=session.get("user_id")
+    if user_id:
+        current_user=Users.query.filter_by(id=user_id).first()
+    else:
+        current_user=None
+    return render_template("index.html",posts=posts,current_user=current_user)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -121,7 +126,7 @@ def login():
 
         # Query database for username
         print(request.form.get("username"))
-        rows = Users.query.filter_by(username=request.form.get("username")).all()
+        rows = Users.query.filter_by(username=request.form.get("username").strip()).all()
         print("rows",rows[0].hash)
     
         # Ensure username exists and password is correct
@@ -140,10 +145,16 @@ def login():
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template("login.html")
+        user_id=session.get("user_id")
+        if user_id:
+            current_user=Users.query.filter_by(id=user_id).first()
+        else:
+            current_user=None
+        return render_template("login.html", current_user= current_user)
 
 
 @app.route("/logout")
+@login_required
 def logout():
     
 
@@ -191,9 +202,9 @@ def register():
 
         hashed_pass = generate_password_hash(password)
         add_user=Users(          
-            username=username,
+            username=username.strip(),
             hash=hashed_pass,
-            email=email
+            email=email.strip()
         )
         db.session.add(add_user)
         db.session.commit()
@@ -201,30 +212,78 @@ def register():
             return redirect("/login")
         else:
             return render_template("register.html",message="Registration Failed")
-            
+    user_id=session.get("user_id")
+    if user_id:
+        current_user=Users.query.filter_by(id=user_id).first()
+    else:
+        current_user=None
+          
 
-    return render_template("register.html")
+    return render_template("register.html", current_user= current_user)
 
 
 @app.route("/profile/<int:id>", methods=["GET", "POST"])
+@login_required
 def profile(id):
-    
-    profile=Users.query.filter_by(id=id).first()
-    
-    posts=Posts.query.filter_by(person_id=profile.id).all()
-    print(posts)
-
-
-    
-
-
-
-
-
-    return render_template("profile.html",profile=profile,posts=posts)
-
+    current_user_id=session["user_id"]
+    if current_user_id==id:
+        current_user=Users.query.filter_by(id=id).first()
+        profile=current_user
+    else:
+        profile=Users.query.filter_by(id=id).first()
+        current_user=Users.query.filter_by(id=current_user_id).first()
 
     
+    
+    posts=Posts.query.filter_by(person_id=profile.id).order_by(Posts.created_at.desc()).all()
+    
+    is_user=current_user_id==profile.id
+    is_following=False
+    if not is_user:
+        is_following=profile in current_user.following
+
+    user_id=session.get("user_id")
+    if user_id:
+        current_user=Users.query.filter_by(id=user_id).first()
+    else:
+        current_user=None
+
+
+
+
+    return render_template("profile.html",profile=profile,posts=posts,is_user=is_user,
+                           is_following=is_following,current_user=current_user)
+
+
+    
+@app.route("/follow_unfollow/<int:id>", methods=["GET", "POST"])
+@login_required
+def follow_unfollow(id):    
+
+    if request.method != "PUT":
+        return jsonify({"error": "PUT request required."})
+
+    data = json.loads(request.body) 
+    print(data)
+    if data.get("follow") is not None:
+
+            try:
+                current_user=Users.query.filter_by(id=session.get("user_id")).first()
+                followed=Users.query.filter_by(id=id).first()
+            except :
+                return jsonify({"error": "User not found.","status":404} )
+            if data['follow']:
+
+                followed.followers.append(current_user)
+                return jsonify({"Success": "followed successfully.","status":204})
+            else:
+                followed.followers.remove(current_user)
+                return jsonify({"Success": "unfollowed successfully.", "status":204})
+
+
+
+
+
 
 
 
@@ -235,7 +294,7 @@ def test():
     harry =Users.query.filter_by(username='harry').first()
     ron=Users.query.filter_by(username='Ron').first()
     print(ron.following)
-    return render_template("test.html")
+    return render_template("test.html",user_id=session.get("user_id"))
 
 
 

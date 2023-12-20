@@ -1,4 +1,5 @@
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", function (event) 
+{
 	display_tabs("all", event);
 	document.querySelector("#allpost").addEventListener("click", (event) => {
 		display_tabs("all", event);

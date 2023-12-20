@@ -2,11 +2,15 @@
 
 {% block body %}
     
-<div>
+<div id="profile_div">
     <div>
         <h2>{{profile.username}}</h2>
         <div id="follow_div">
-
+            {%if not is_user%}
+            {%if is_following %}
+            <span class="badge bg-secondary ml-3">Following</span><button class="badge bg-danger ml-2" id="unfollow_btn" data-profile_id="{{profile.id}}">Unfollow</button> {%else%}<button data-profile_id="{{profile.id}}" class="badge bg-success ml-3" id="follow_btn">Follow</button>
+            {%endif%}
+            {%endif%}
         </div>
         <h5 class="ml-3"></br><strong>{{profile.following|count}}</strong> <i>following </i>         <strong>{{profile.followers|count}}</strong> <i>followers</i><hr></h5>
         
@@ -22,8 +26,8 @@
     
         <div class="border border-dark m-3 p-2 rounded w-50">
     
-           <h5><span style='color:grey;font-size:15px;'>Posted by: </span><a style="font-weight: bold;color: blue;" href="/profile/{{item.owner.id}}">{{item.owner.username}}</a></h5>
-           <h6 class="mt-2">{{item.content}}</h6>
+          
+           <h5 class="mt-2">{{item.content}}</h5>
            <p><span style='color:grey;'>{{item.created_at}}</span></p>
     
     
