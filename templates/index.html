@@ -1,31 +1,44 @@
 {% extends "layout.html" %}
 
 {% block body %}
+<div >
 
-<div id="compose-view">
-    <h3 class="ml-3">New Post</h3>
-    <form action="/"  method="post">
-       
-        <textarea class="form-control w-75" id="compose-body" name="current_post" placeholder="What's happening?" autofocus></textarea>
-        <br>
-        <input type="submit" id="submit_button" class="btn btn-primary"/>
-    </form>
+
+    <div id="compose-view" class="container-fluid py-5 text-center w-50">
+        
+        <form action="/"  method="post">
+           
+            <textarea class="form-control" id="compose-body" name="current_post" placeholder="What's happening?" autofocus></textarea>
+            <br>
+            <input type="submit" id="submit_button" class="btn btn-primary"/>
+        </form>
+    </div>
+    
+    <div id="profile-view">
+      
+        
+    </div>
+    <div id="post-view" class="container-fluid py-5  w-50">
+        <h5 class="ms-3">All Posts</h5>
+        {% for item in posts%}      
+        
+
+        <div class="border border-dark m-3 p-2 rounded">
+
+           <h5><span style='color:grey;font-size:15px;'>Posted by: </span><a style="font-weight: bold;color: blue;" href="/profile/{{item.owner.id}}">{{item.owner.username}}</a></h5>
+           <h6 class="mt-2">{{item.content}}</h6>
+           <p><span style='color:grey;'>{{item.created_at}}</span></p>
+
+
+        </div>
+        {%endfor%}
+    </div>
+    
+    <div class="ml-3" id="pagination_view">
+        
+        
+    </div>
 </div>
 
-<div id="profile-view">
-  
-    
-</div>
-<div id="post-view">
-    {% for item in posts%}
-    <h5>{{item.owner.username}}</h5>
-    {%endfor%}
-    
-</div>
-
-<div class="ml-3" id="pagination_view">
-    
-    
-</div>
 
 {% endblock %}

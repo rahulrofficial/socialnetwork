@@ -135,6 +135,7 @@ def login():
         session["user_id"] = rows[0].id
 
         # Redirect user to home page
+        flash('You were successfully logged in')
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -150,6 +151,7 @@ def logout():
     session.clear()
 
     # Redirect user to login form
+    flash('You were successfully logged out')
     return redirect("/")
 
 
@@ -202,6 +204,27 @@ def register():
             
 
     return render_template("register.html")
+
+
+@app.route("/profile/<int:id>", methods=["GET", "POST"])
+def profile(id):
+    
+    profile=Users.query.filter_by(id=id).first()
+    
+    posts=Posts.query.filter_by(person_id=profile.id).all()
+    print(posts)
+
+
+    
+
+
+
+
+
+    return render_template("profile.html",profile=profile,posts=posts)
+
+
+    
 
 
 
