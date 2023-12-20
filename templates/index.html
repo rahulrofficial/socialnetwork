@@ -3,7 +3,7 @@
 {% block body %}
 <div >
 
-
+    {% if current_user%}
     <div id="compose-view" class="container-fluid py-5 text-center w-50">
         
         <form action="/"  method="post">
@@ -13,7 +13,7 @@
             <input type="submit" id="submit_button" class="btn btn-primary"/>
         </form>
     </div>
-    
+    {%endif%}
     <div id="profile-view">
       
         

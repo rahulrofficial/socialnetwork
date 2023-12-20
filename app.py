@@ -256,15 +256,16 @@ def profile(id):
 
 
     
-@app.route("/follow_unfollow/<int:id>", methods=["GET", "POST"])
+@app.route("/follow_unfollow/<int:id>", methods=["GET", "PUT"])
 @login_required
 def follow_unfollow(id):    
 
     if request.method != "PUT":
         return jsonify({"error": "PUT request required."})
 
-    data = json.loads(request.body) 
-    print(data)
+    data =request
+    print(dict(data.data))
+    """
     if data.get("follow") is not None:
 
             try:
@@ -275,12 +276,16 @@ def follow_unfollow(id):
             if data['follow']:
 
                 followed.followers.append(current_user)
+                db.session.add(followed)
+                db.session.commit()
                 return jsonify({"Success": "followed successfully.","status":204})
             else:
                 followed.followers.remove(current_user)
+                db.session.add(followed)
+                db.session.commit()
                 return jsonify({"Success": "unfollowed successfully.", "status":204})
 
-
+"""
 
 
 

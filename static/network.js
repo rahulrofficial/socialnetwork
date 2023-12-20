@@ -1,15 +1,21 @@
 document.addEventListener("DOMContentLoaded", function (event) {
 
 
-if (document.getElementById("profile_div")){
-    document.getElementById("unfollow_btn").addEventListener('click',(event)=>{
-        follow_unfollow(event,"unfollow")
-    });
+if (document.getElementById("profile_div"))
+{
+    if(document.querySelector("#unfollow_btn")){
+        document.querySelector("#unfollow_btn").addEventListener('click',(event)=>{
+            follow_unfollow(event,"unfollow")
+        });
+    }
+    
 
-
-    document.getElementById("follow_btn").addEventListener('click',(event)=>{
-        follow_unfollow(event,"follow")
-    });
+    if(document.getElementById("follow_btn")){
+        document.getElementById("follow_btn").addEventListener('click',(event)=>{
+            follow_unfollow(event,"follow")
+        });
+    }
+    
 
 }
 
@@ -22,7 +28,7 @@ if (document.getElementById("profile_div")){
 });
 
 function follow_unfollow(event,action){
-    profile_id = event.target.dataset.profile_id;
+    profile_id =parseInt( event.target.dataset.profile_id);
     if (action=="follow"){
 
         fetch(`/follow_unfollow/${profile_id}`, {
@@ -32,7 +38,7 @@ function follow_unfollow(event,action){
 			}),
 		}).then((response) => {
             console.log(response);
-			window.location.replace(`/profile/${profile_id}`);
+			
 		});
 
     }
@@ -44,7 +50,7 @@ function follow_unfollow(event,action){
 			}),
 		}).then((response) => {
 			console.log(response);
-            window.location.replace(`/profile/${profile_id}`);
+            
 		});
 
 
