@@ -32,24 +32,30 @@ function follow_unfollow(event,action){
     if (action=="follow"){
 
         fetch(`/follow_unfollow/${profile_id}`, {
-			method: "PUT",
-			body: JSON.stringify({
+			"method": "PUT",
+            "headers": {"Content-Type": "application/json"},
+			"body": JSON.stringify({
 				follow: true,
 			}),
 		}).then((response) => {
-            console.log(response);
+            if(response.status==200){
+                window.location.replace(`/profile/${profile_id}`);
+            }
 			
 		});
 
     }
     else if (action=="unfollow"){
         fetch(`/follow_unfollow/${profile_id}`, {
-			method: "PUT",
-			body: JSON.stringify({
+			"method": "PUT",
+            "headers": {"Content-Type": "application/json"},
+			"body": JSON.stringify({
 				follow: false,
 			}),
 		}).then((response) => {
-			console.log(response);
+			if(response.status==200){
+                window.location.replace(`/profile/${profile_id}`);
+            }
             
 		});
 

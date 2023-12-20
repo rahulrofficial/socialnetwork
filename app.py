@@ -1,7 +1,7 @@
 import os
 
 
-from flask import Flask, flash, redirect, render_template, request, session,jsonify
+from flask import Flask, flash, redirect, render_template, request, session,jsonify,request
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
@@ -223,23 +223,26 @@ def register():
 
 
 @app.route("/profile/<int:id>", methods=["GET", "POST"])
-@login_required
+
 def profile(id):
-    current_user_id=session["user_id"]
+    current_user_id=session.get("user_id")
     if current_user_id==id:
         current_user=Users.query.filter_by(id=id).first()
         profile=current_user
+    elif current_user_id ==None:
+        profile=Users.query.filter_by(id=id).first()
+        current_user=None
     else:
         profile=Users.query.filter_by(id=id).first()
         current_user=Users.query.filter_by(id=current_user_id).first()
-
+        
     
     
     posts=Posts.query.filter_by(person_id=profile.id).order_by(Posts.created_at.desc()).all()
     
-    is_user=current_user_id==profile.id
+    is_user=current_user_id==profile.id 
     is_following=False
-    if not is_user:
+    if not is_user and not current_user_id==None:
         is_following=profile in current_user.following
 
     user_id=session.get("user_id")
@@ -263,9 +266,10 @@ def follow_unfollow(id):
     if request.method != "PUT":
         return jsonify({"error": "PUT request required."})
 
-    data =request
-    print(dict(data.data))
-    """
+    data=request.json
+    
+    
+    
     if data.get("follow") is not None:
 
             try:
@@ -285,12 +289,31 @@ def follow_unfollow(id):
                 db.session.commit()
                 return jsonify({"Success": "unfollowed successfully.", "status":204})
 
-"""
+    return jsonify({"error": "Unsuccessful","status":404} )
 
 
 
+@app.route("/following", methods=["GET", "POST"])
+@login_required
+def following():
+    
+    user_id=session.get("user_id")
+    
+    current_user=Users.query.filter_by(id=user_id).first()
+    
+    following=[user.id for user in current_user.following]
+    
+    posts=Posts.query.filter(Posts.person_id.in_(following)).order_by(Posts.created_at.desc()).all()
+    
+    return render_template("following.html",posts=posts,user_id=user_id)
 
-
+@app.route("/newpost", methods=["GET", "POST"])
+@login_required
+def newpost():
+    
+    return render_template("new_post.html",user_id=session.get("user_id"))
+    
+    
 
 
 @app.route("/test", methods=["GET", "POST"])
@@ -298,7 +321,11 @@ def test():
     
     harry =Users.query.filter_by(username='harry').first()
     ron=Users.query.filter_by(username='Ron').first()
-    print(ron.following)
+    
+    following=[user.id for user in ron.following]
+    print(following)
+    posts=Posts.query.filter(Posts.person_id.in_(following)).order_by(Posts.created_at.desc()).all()
+    print(posts)
     return render_template("test.html",user_id=session.get("user_id"))
 
 

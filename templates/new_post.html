@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div >
+
+    
+    <div id="compose-view" class="container-fluid py-5 text-center w-50">
+        <h4>New Post</h4>
+        <form action="/"  method="post">
+           
+            <textarea class="form-control" id="compose-body" name="current_post" placeholder="What's happening?" autofocus></textarea>
+            <br>
+            <input type="submit" id="submit_button" class="btn btn-primary"/>
+        </form>
+    </div>
+   
+    
+</div>
+
+
+{% endblock %}

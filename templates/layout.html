@@ -17,19 +17,19 @@
 		{% endblock %}
 	</head>
 	<body>
-		<nav class="navbar navbar-expand-lg navbar-light bg-light me-3">
+		<nav class="navbar navbar-expand-lg navbar-light bg-light ms-3">
 			<a class="navbar-brand" id="network" href="/">Network</a>
 
 			<div>
 				<ul class="navbar-nav mr-auto">					
 					<li class="nav-item">
 						{% if current_user %}
-						<a class="nav-link" id="username"
+						<a class="nav-link me-3" id="username"
 							><strong>{{current_user.username}}</strong
 							></a
 						>
 						{%else%}
-						<a class="nav-link" id="username"
+						<a class="nav-link me-3" id="username"
 							><strong>Guest</strong
 							></a
 						>
@@ -38,35 +38,35 @@
 					</li>
 					
 					<li class="nav-item">
-						<a class="btn btn-outline-info" href="/" id="allpost">All Posts</a>
+						<a class="btn btn-outline-info me-3" href="/" id="allpost">All Posts</a>
 					</li>
 
 					{% if current_user %}
 					<li class="nav-item">
-						<a class="btn btn-outline-info ml-2" id="follow">Following</a>
+						<a class="btn btn-outline-info me-3" href="/following" id="follow">Following</a>
 					</li>
 					<li class="nav-item" id="newpost">
-						<a class="btn btn-outline-info ml-2" id="newpost">New Post</a>
+						<a class="btn btn-outline-info me-3" href="/newpost" id="newpost">New Post</a>
 					</li>
 					<li class="nav-item">
-						<a class="btn btn-outline-info ml-2" href="/logout"
+						<a class="btn btn-outline-info me-3" href="/logout"
 							>Log Out</a
 						>
 					</li>
 					{%else%}
 					<li class="nav-item">
-						<a class="btn btn-outline-info ml-2" href="/login"
+						<a class="btn btn-outline-info me-3" href="/login"
 							>Log In</a
 						>
 					</li>
 					<li class="nav-item">
-						<a class="btn btn-outline-info ml-2" href="/register"
+						<a class="btn btn-outline-info me-3" href="/register"
 							>Register</a
 						>
 					</li>
 					{%endif%}
 					<li class="nav-item">
-						<a class="btn btn-outline-info ml-2" href="/test"
+						<a class="btn btn-outline-info me-3" href="/test"
 							>Test</a
 						>
 					</li>
