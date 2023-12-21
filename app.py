@@ -313,7 +313,76 @@ def newpost():
     
     return render_template("new_post.html",user_id=session.get("user_id"))
     
+
+@app.route("/view_post/<int:post_id>", methods=["GET", "POST"])
+def view_post(post_id): 
+    post=Posts.query.filter_by(id=post_id).first()
     
+    if request.method=="POST":
+        
+        return jsonify({"post_id":post.id,"owner_id":post.person_id,"content":post.content})
+
+
+    return render_template("view_post.html",user_id=session.get("user_id"),post=post)
+
+@app.route("/post_data/<int:post_id>", methods=["GET"])
+def post_data(post_id): 
+    post=Posts.query.filter_by(id=post_id).first()
+    
+    if request.method=="GET":
+        
+        return jsonify({"post_id":post.id,"owner_id":post.person_id,"content":post.content})
+    
+    return jsonify({"error": "GET request required."})
+
+
+    
+
+@app.route("/post_manipulation/<int:post_id>", methods=["GET", "POST"])
+@login_required
+def post_manipulation(post_id):    
+
+    if request.method != "POST":
+        return jsonify({"error": "POST request required."})
+
+    data=request.json
+    user_id=session.get("user_id")
+    post=Posts.query.filter_by(id=post_id).first()
+
+    if not user_id==post.person_id:
+        return jsonify({"error": "Unauthorized Action.","status":403} )
+    
+    
+    
+    action=data.get("action")
+    
+    
+    if action is not None:
+        
+        if action=='edit':
+            post.content=data.get("content")
+            db.session.add(post)
+            db.session.commit()
+            return jsonify({"success": "Edited Successfully","status":200} )
+        elif action=='delete':
+            db.session.delete(post)
+            db.session.commit()
+            print("deleted")
+            return jsonify({"success": "Deleted Successfully","status":200} )
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route("/test", methods=["GET", "POST"])

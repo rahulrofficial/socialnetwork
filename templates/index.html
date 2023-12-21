@@ -1,44 +1,64 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block body %}
+<div id="index_div">
+	{% if current_user%}
+	<div id="compose-view" class="container-fluid py-5 text-center w-50">
+		<form action="/" method="post">
+			<textarea
+				class="form-control"
+				id="compose-body"
+				name="current_post"
+				placeholder="What's happening?"
+				autofocus></textarea>
+			<br />
+			<input type="submit" id="submit_button" class="btn btn-primary" />
+		</form>
+	</div>
+	{%endif%}
+	
+	<div id="post-view" class="container-fluid py-5 w-50">
+		<h5 class="ms-3">All Posts</h5>
+		{% for item in posts%}
 
-{% block body %}
-<div >
+		<div id="display_div_{{item.id}}" class="border border-dark m-3 p-2 rounded">
 
-    {% if current_user%}
-    <div id="compose-view" class="container-fluid py-5 text-center w-50">
-        
-        <form action="/"  method="post">
-           
-            <textarea class="form-control" id="compose-body" name="current_post" placeholder="What's happening?" autofocus></textarea>
-            <br>
-            <input type="submit" id="submit_button" class="btn btn-primary"/>
-        </form>
-    </div>
-    {%endif%}
-    <div id="profile-view">
-      
-        
-    </div>
-    <div id="post-view" class="container-fluid py-5  w-50">
-        <h5 class="ms-3">All Posts</h5>
-        {% for item in posts%}      
-        
+			<div class="row">
+				<div class="col-9">
+					<h5>
+						<span style="color: grey; font-size: 15px">Posted by: </span
+						><a
+							style="font-weight: bold; color: blue"
+							href="/profile/{{item.owner.id}}"
+							>{{item.owner.username}}</a
+						>
+					</h5>
+					<div id="index_content_div_{{item.id}}"><h6  class="mt-2">{{item.content}}</h6></div>
+					<p><span style="color: grey">{{item.created_at}}</span></p>
+					<button class="btn btn-outline-danger">
+						<i style="font-size: 24px; color: red" class="fa">&#xf004;</i>
+						{{item.likes}} Likes
+					</button>
+				</div>
 
-        <div class="border border-dark m-3 p-2 rounded">
+				<div class="col-2 ">
+					<div class="row">
+						<button data-post_id="{{item.id}}" id="index_view_btn_{{item.id}}" class="btn btn-outline-success mb-1 w-75 view_btn">View</button>
+					</div>
+					<div class="row"><!---->
+						<button data-post_id="{{item.id}}" id="index_edit_btn_{{item.id}}" class="btn btn-outline-primary mb-1 w-75 edit_btn">Edit</button>
+						<button style="display: none;" data-post_id="{{item.id}}" id="index_submit_btn_{{item.id}}" class="btn btn-primary mb-1 w-75 submit_btn">Submit</button>
+					</div>
 
-           <h5><span style='color:grey;font-size:15px;'>Posted by: </span><a style="font-weight: bold;color: blue;" href="/profile/{{item.owner.id}}">{{item.owner.username}}</a></h5>
-           <h6 class="mt-2">{{item.content}}</h6>
-           <p><span style='color:grey;'>{{item.created_at}}</span></p>
+					<div class="row">
+						<button data-post_id="{{item.id}}" id="index_delete_btn_{{item.id}}" class="btn btn-outline-danger mb-1 w-75 delete_btn">Delete</button>
+					</div>
+				</div>
+			</div>
+		  </div>
+		{%endfor%}
+		
+	</div>
 
-
-        </div>
-        {%endfor%}
-    </div>
-    
-    <div class="ml-3" id="pagination_view">
-        
-        
-    </div>
+	
 </div>
-
 
 {% endblock %}

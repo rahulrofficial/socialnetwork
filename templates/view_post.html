@@ -1,0 +1,50 @@
+{% extends "layout.html" %} {% block body %}
+<div id="view_post_div">
+	
+	
+	<div id="post-view" class="container-fluid py-5 w-50">
+		<h5 class="ms-3">View Post</h5>
+		
+
+		<div  class="border border-dark m-3 p-3 rounded">
+
+			<div  class="row">
+				<div class="col-9">
+					<h3>
+						<span style="color: grey; font-size: 20px">Posted by: </span
+						><a
+							style="font-weight: bold; color: blue"
+							href="/profile/{{post.owner.id}}"
+							>{{post.owner.username}}</a
+						>
+					</h3>
+					<h4 class="mt-2">{{post.content}}</h4>
+					<p><span style="color: grey">{{post.created_at}}</span></p>
+					<button class="btn btn-outline-danger">
+						<i style="font-size: 24px; color: red" class="fa">&#xf004;</i>
+						{{post.likes}} Likes
+					</button>
+				</div>
+
+				<div class="col-2 ">
+					<div class="row">
+						
+					</div>
+					<div class="row">
+						<button data-post_id="{{post.id}}" class="btn btn-outline-primary mb-1 w-75 edit_btn">Edit</button>
+					</div>
+
+					<div class="row">
+						<button data-post_id="{{post.id}}" class="btn btn-outline-danger mb-1 w-75 delete_btn">Delete</button>
+					</div>
+				</div>
+			</div>
+		  </div>
+		
+		
+	</div>
+
+	
+</div>
+
+{% endblock %}
