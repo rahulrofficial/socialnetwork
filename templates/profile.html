@@ -19,6 +19,98 @@
 
 
     </div >
+	<div id="prof_container" class="container">
+		<div class="row">
+			
+				<div style="width: 400px" class="col">
+					<img
+						style="border-radius: 50%; width: 400px; height: 400px"
+						{% if profile.profile_pic_addr %}
+						src="{{profile.profile_pic_addr}}"
+						{%else%}
+						src="/static/blank.png"
+						{%endif%}
+						alt="" />
+					{% if profile.first_name and profile.last_name%}
+					<h3>{{profile.first_name}} {{profile.last_name}}</h3>
+					{%elif profile.first_name %}
+					<h3>{{profile.first_name}}</h3>
+					{%elif profile.last_name %}
+					<h3>{{profile.last_name}}</h3>
+					{%else%}
+					<h3>{{profile.username}}</h3>
+					{%endif%}
+				</div>
+			
+
+			<div style="width:700px;" class="col ms-4 pt-4">
+                <table style="width:700px;" class="table table-striped" id="details_display">
+                    <tr>
+                        <th>Email</th> 
+
+                        <td>{{profile.email|default('', true) }}</td>
+                    </tr>
+                    <tr>
+                        <th>First Name</th>
+                        <td>{{profile.first_name|default('', true) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last Name</th>
+                        <td>{{profile.last_name|default('', true) }}</td>
+                    </tr>                    
+                 
+                    <tr>
+                        <td></td>
+                        
+                        <td><button class="btn btn-danger" id="profile_edit_btn">Edit</button></td>
+                    </tr>
+                    
+                </table>
+                <form id="profile_edit_form" class="form-group pt-1" style="display: none;width:700px;" action="/profile/{{profile.id}}" method="post">
+                
+                <div class="form-group">
+                    
+                    <label for="email">E-mail</label>
+                    <input class="form-control" id="email" type="email" name="email" placeholder="Email Address" value="{{profile.email|default('', true)}}">
+                </div>
+                <div class="form-group">
+                    <label for="firstname">First Name</label>
+                    <input class="form-control" id="firstname"  type="text" name="firstname" placeholder="First name" value="{{profile.first_name|default('', true)}}">
+                </div>
+                <div class="form-group">
+                    <label for="lastname">Last Name</label>
+                    <input class="form-control" id="lastname"  type="text" name="lastname" placeholder="Last name" value="{{profile.last_name|default('', true)}}">
+                </div>
+                <div class="form-group">
+                    <label for="profile">Profile URL</label>
+                    <input class="form-control" type="url" id="profile" placeholder="Profile URL" name="profile_url" value="{{profile.profile_pic_addr|default('', true)}}">
+                </div>
+				<hr>
+				<div class="form-group">
+                    <label for="current_password"> Current Password</label>
+                    <input class="form-control" id="current_password"  type="password" name="current_password" placeholder="Current Password" >
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password</label>
+                    <input class="form-control" id="password"  type="password" name="password" placeholder="Password" >
+                </div>
+                <div class="form-group">
+                    <label for="confirm">Confirm Password</label>
+                    <input class="form-control" id="confirm"  type="password" name="confirmation" placeholder="Confirm Password" >
+                </div>
+                <input id="profile_submit_btn" class="btn btn-success mt-2" type="submit" value="Save">
+            </form>
+              </div>
+                    
+             
+                
+                
+                
+               
+
+            </div>
+		</div>
+	</div>
    
 
     <div class="container-fluid py-5 ">

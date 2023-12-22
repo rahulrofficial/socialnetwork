@@ -46,7 +46,8 @@ class Users(db.Model):
     first_name=db.Column(db.String(80), nullable=True)
     last_name=db.Column(db.String(80), nullable=True)
     profile_pic_addr=db.Column(db.String(200), nullable=True)
-    user_posts=db.relationship('Posts',backref='owner',lazy='dynamic')    
+    user_posts=db.relationship('Posts',backref='owner',lazy='dynamic') 
+    user_comments=db.relationship('Comments',backref='commented_user',lazy='dynamic')    
     followers = db.relationship('Users', 
                                 secondary = follow, 
                                 primaryjoin = (follow.c.following_id == id),
@@ -135,23 +136,26 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):
+            flash('must provide username')
             return render_template("login.html",message="must provide username")
             
 
         # Ensure password was submitted
         elif not request.form.get("password"):
+            flash('must provide password')
             return render_template("login.html",message="must provide password")
             
 
         # Query database for username
-        print(request.form.get("username"))
+        
         rows = Users.query.filter_by(username=request.form.get("username").strip()).all()
-        print("rows",rows[0].hash)
+        
     
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
             rows[0].hash, request.form.get("password")
         ):
+            flash('Invalid username and/or password')
             return render_template("login.html",message="invalid username and/or password")
             
 
@@ -198,7 +202,7 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
-        print(email)
+        
         if not username:
             return render_template("register.html",message="must provide username")
         
@@ -245,6 +249,8 @@ def register():
 
 def profile(id):
     current_user_id=session.get("user_id")
+    user=Users.query.filter_by(id=id).first()
+    
     if current_user_id==id:
         current_user=Users.query.filter_by(id=id).first()
         profile=current_user
@@ -270,7 +276,59 @@ def profile(id):
     else:
         current_user=None
 
+    ####################Profile Edit#############################
+    if request.method == "POST":
+        if not user.id==current_user_id:
+            flash('Unauthorized Attempt')
+            return redirect(f'/profile/{id}')
+            
+                    
+        email = request.form.get("email")
+        firstname=request.form.get("firstname")
+        lastname=request.form.get("lastname")
+        profile_url=request.form.get("profile_url")
+        # Ensure password matches confirmation
+        current_password=request.form.get("current_password")
+        if current_password:
+            
+            if not check_password_hash(user.hash,current_password):
+                flash('Current Password is Incorrect')
+                return redirect(f'/profile/{id}')
+            
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+        if password and confirmation:
+            
+            if password != confirmation:
+                flash('Passwords should match')
+                return redirect(f'/profile/{id}')
 
+        
+        try:
+            if email and (not email == user.email):
+                user.email=email
+            if firstname and (not firstname == user.first_name):
+                user.first_name=firstname
+            if lastname and (not lastname==user.last_name):
+                user.last_name=lastname
+            if profile_url and (not profile_url==user.profile_pic_addr):
+                user.profile_pic_addr=profile_url
+            if password:
+                hash=generate_password_hash(password)
+                user.hash=hash
+            db.session.add(user)
+            db.session.commit()
+        except IntegrityError:
+            flash('Update Unsuccessful')
+            return redirect(f'/profile/{id}')
+        
+        flash('Updated successfully')
+        return redirect(f'/profile/{id}') 
+    
+    
+    
+    
+    ###########################################################
 
 
     return render_template("profile.html",profile=profile,posts=posts,is_user=is_user,
@@ -343,18 +401,21 @@ def like_unlike(post_id):
                         liker=current_user.id,
                         liked_post=post.id
                     ) 
-                    post.likes+=1
-                    db.session.add(liked)
+                    
+                    db.session.add(liked)                    
+                    db.session.commit()
+                    post.likes=len(Likes.query.filter_by(liked_post=post_id).all())
                     db.session.add(post)
                     db.session.commit()
                     return jsonify({"Success": "Liked successfully.","status":200})
                 else:
-                    liked=Likes.query.filter((Likes.liker==current_user.id) & (Likes.liked_post==post.id)).first()
-                    post.likes-=1
-                    db.session.remove(liked)
+                    liked=Likes.query.filter((Likes.liker==current_user.id) & (Likes.liked_post==post.id)).first() 
+                                                   
+                    db.session.delete(liked)                    
+                    db.session.commit()
+                    post.likes=len(Likes.query.filter_by(liked_post=post_id).all())
                     db.session.add(post)
                     db.session.commit()
-                
                     return jsonify({"Success": "Unliked successfully.", "status":200})
 
     
@@ -380,6 +441,8 @@ def following():
     
     return render_template("following.html",posts=posts,user_id=user_id,current_user=current_user)
 
+
+
 @app.route("/newpost", methods=["GET", "POST"])
 @login_required
 def newpost():
@@ -397,13 +460,39 @@ def view_post(post_id):
     current_user=None
     if user_id:
         current_user=Users.query.filter_by(id=user_id).first()
+    comments=Comments.query.filter_by(commented_post=post.id).order_by(Comments.created_at.desc()).all()
+    comment_data=[]
+    for item in comments:
+        comm=dict()
+        commenter=Users.query.filter_by(id=item.commenter).first()
+        comm["created_at"]=item.created_at
+        comm["comment"]=item.comment
+        comm["commenter"]=commenter.username
+        comm["profile_pic"]=commenter.profile_pic_addr
+        comment_data.append(comm)
     
+    comm_no=len(comments)
     if request.method=="POST":
+        comment_box = request.form.get("comment_box")
         
-        return jsonify({"post_id":post.id,"owner_id":post.person_id,"content":post.content})
+        if current_user:
+            comment=Comments(
+                comment=comment_box,
+                commented_post=post.id,
+                commenter=current_user.id
+            )
+            db.session.add(comment)
+            db.session.commit()
+            if comment.id:
+                return redirect(f"/view_post/{post_id}")
+            
+            
+        
+        
 
-
-    return render_template("view_post.html",user_id=session.get("user_id"),post=post,current_user=current_user)
+    
+    return render_template("view_post.html",user_id=session.get("user_id"),item=post,current_user=current_user,
+                           comm_no=comm_no,comments=comment_data)
 
 @app.route("/post_data/<int:post_id>", methods=["GET"])
 def post_data(post_id): 
@@ -411,7 +500,7 @@ def post_data(post_id):
     
     if request.method=="GET":
         
-        return jsonify({"post_id":post.id,"owner_id":post.person_id,"content":post.content})
+        return jsonify({"post_id":post.id,"owner_id":post.person_id,"content":post.content,"likes":post.likes})
     
     return jsonify({"error": "GET request required."})
 
@@ -447,12 +536,21 @@ def post_manipulation(post_id):
         elif action=='delete':
             db.session.delete(post)
             db.session.commit()
-            print("deleted")
+            
             return jsonify({"success": "Deleted Successfully","status":200} )
         
         
         
+@app.route("/liked", methods=["GET", "POST"])
+@login_required
+def liked_posts():
 
+    user_id=session.get("user_id")
+    current_user=Users.query.filter_by(id=user_id).first()
+    ids=Likes.query.filter_by(liker=user_id).all()  
+    post_ids=[post.liked_post for post in ids]    
+    posts=Posts.query.filter(Posts.id.in_(post_ids)).order_by(Posts.created_at.desc()).all()
+    return render_template("liked_posts.html",user_id=user_id,posts=posts,current_user=current_user)
 
 
 
@@ -468,10 +566,10 @@ def post_manipulation(post_id):
 @app.route("/test", methods=["GET", "POST"])
 def test():
 
-    post=Posts.query.filter_by(id=1).first()
-    current_user=Users.query.filter_by(id=4).first()   
+    user_id=session.get("user_id")
+    ids=Likes.query.filter_by(liker=user_id).all()  
+    post_ids=[post.liked_post for post in ids]
     
-    print(post.likes)
     
     return render_template("test.html",user_id=session.get("user_id"))
 

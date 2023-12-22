@@ -14,15 +14,15 @@
 						<span style="color: grey; font-size: 20px">Posted by: </span
 						><a
 							style="font-weight: bold; color: blue"
-							href="/profile/{{post.owner.id}}"
-							>{{post.owner.username}}</a
+							href="/profile/{{item.owner.id}}"
+							>{{item.owner.username}}</a
 						>
 					</h3>
-					<h4 class="mt-2">{{post.content}}</h4>
-					<p><span style="color: grey">{{post.created_at}}</span></p>
-					<button class="btn btn-outline-danger">
-						<i style="font-size: 24px; color: red" class="fa">&#xf004;</i>
-						{{post.likes}} Likes
+					<div id="index_content_div_{{item.id}}"><h4  class="mt-2">{{item.content}}</h4></div>
+					<p><span style="color: grey">{{item.created_at}}</span></p>
+					<button id="index_like_btn_{{item.id}}" data-post_id="{{item.id}}"  class="btn btn-outline-danger like_btn">
+						<i data-post_id="{{item.id}}" style="font-size: 24px; color: red" class="fa">&#xf004;</i>
+						{{item.likes|default(0, true) }} Likes
 					</button>
 				</div>
 
@@ -30,19 +30,93 @@
 					<div class="row">
 						
 					</div>
+					{% if current_user%}
+					{% if current_user.id== item.owner.id%}
 					<div class="row">
-						<button data-post_id="{{post.id}}" class="btn btn-outline-primary mb-1 w-75 edit_btn">Edit</button>
+						<button data-post_id="{{item.id}}" id="index_edit_btn_{{item.id}}" class="btn btn-outline-primary mb-1 w-75 edit_btn">Edit</button>
+						<button style="display: none;" data-post_id="{{item.id}}" id="index_submit_btn_{{item.id}}" class="btn btn-primary mb-1 w-75 submit_btn">Submit</button>
 					</div>
 
 					<div class="row">
-						<button data-post_id="{{post.id}}" class="btn btn-outline-danger mb-1 w-75 delete_btn">Delete</button>
+						<button data-post_id="{{item.id}}" id="index_delete_btn_{{item.id}}" class="btn btn-outline-danger mb-1 w-75 delete_btn">Delete</button>
 					</div>
+					{%endif%}
+					{%endif%}
 				</div>
 			</div>
 		  </div>
 		
 		
 	</div>
+	<section style="margin: 20px;" class="content-item" id="comments">
+		<div class="container" >   
+			<div class="row">
+				<div class="col-sm-8">   
+					<form action="/view_post/{{item.id}}" method='post'>
+						<h4 class="pull-left">New Comment</h4> <br>
+						
+						<fieldset>
+							<div class="row">
+								<div class="col-sm-3 col-lg-2 hidden-xs">
+									<img style="max-width: 100px;border-radius: 50%;" class="img-responsive" 
+									{% if current_user.profile_pic_addr%}
+									src="{{current_user.profile_pic_addr}}"
+									{%else%}
+									src="/static/commenter.png" 
+									{%endif%}
+									alt="">
+								</div>
+								<div class="form-group col-xs-12 col-sm-9 col-lg-10">
+									
+										{% if current_user %} 				
+																					
+												<div class="mb-3">
+													
+													<textarea autofocus required name="comment_box" style="height: 120px;" class="form-control" placeholder='Add Comment'></textarea>
+												</div>
+												
+												<input class="btn btn-primary" name='comment_submit' type="submit" value="Comment">
+											
+										{%else%}
+										<h4><a href="/login">Log In</a> to add comments</h4>
+										{%endif%}
+								</div>
+							</div>  	
+						</fieldset>
+					</form>
+				   
+					{%if comm_no %}
+					<h4 style="margin: 10px;">{{comm_no}} Comments</h4>  
+					{%endif%}
+{%for comment in comments %}
+
+
+<div class="media m-3">
+	<a class="pull-left" href="#"><img style="max-width: 100px;border-radius: 50%;" class="media-object" 
+		{%if comment.profile_pic %}
+		src="{{comment.profile_pic}}" 
+		{%else%}
+		src="/static/commenter.png" 
+		{%endif%}
+		alt=""></a>
+	<div class="media-body">
+		<h3 style="color: blue;" class="media-heading">{{comment.commenter}}</h3>
+		<h5>{{comment.comment}}</h5>
+		<ul class="list-unstyled list-inline media-detail pull-left">
+			<li><i class="fa fa-calendar text-muted">  {{comment.created_at}}</i></li>
+			
+		</ul>
+		
+	</div>
+</div>
+
+
+
+
+
+
+
+{%endfor%}
 
 	
 </div>

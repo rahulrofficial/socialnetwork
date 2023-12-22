@@ -1,27 +1,17 @@
-{% extends "layout.html" %} {% block body %}
-<div id="index_div">
-	{% if current_user%}
-	<div id="compose-view" class="container-fluid py-5 text-center w-50">
-		<form action="/" method="post">
-			<textarea
-				class="form-control"
-				id="compose-body"
-				name="current_post"
-				placeholder="What's happening?"
-				autofocus></textarea>
-			<br />
-			<input type="submit" id="submit_button" class="btn btn-primary" />
-		</form>
-	</div>
-	{%endif%}
-	
-	<div id="post-view" class="container-fluid py-5 w-50">
-		<h5 class="ms-3">All Posts</h5>
-		{% for item in posts%}
+{% extends "layout.html" %}
 
-		<div id="display_div_{{item.id}}" class="border border-dark m-3 p-2 rounded">
+{% block body %}
+<div id="liked_post_div" >
 
-			<div class="row">
+     
+    <div id="post-view" class="container-fluid py-5  w-50">
+        <h4 class="ms-3">Liked Posts</h4>
+        {% for item in posts%}      
+        
+
+        <div class="border border-dark m-3 p-2 rounded">
+
+            <div class="row">
 				<div class="col-9">
 					<h5>
 						<span style="color: grey; font-size: 15px">Posted by: </span
@@ -57,12 +47,17 @@
 					{%endif%}
 				</div>
 			</div>
-		</div>
-		  {%endfor%}
-		
-	</div>
 
-	
+
+        </div>
+        {%endfor%}
+    </div>
+    
+    <div class="ml-3" id="pagination_view">
+        
+        
+    </div>
 </div>
+
 
 {% endblock %}
