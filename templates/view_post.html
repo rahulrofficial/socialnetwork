@@ -93,9 +93,11 @@
 <hr>
 <div class="media container mb-5">
 	<a class="pull-left" href="#"><img style="max-width: 100px;" class="media-object" 
-		
+		{%if comment.profile_pic %}
+			src="{{comment.profile_pic}}" 
+			{%else%}
 		src="/static/commenter.png" 
-		
+		{%endif%}
 		alt=""></a>
 	<div class="media-body">
 		<h3 style="color: blue;" class="media-heading">{{comment.commenter}}</h3>
