@@ -29,7 +29,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
  
 # Initialising SQLAlchemy with Flask App
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db,render_as_batch=True)
 
 # Declaring Model
 follow = db.Table(
@@ -46,7 +46,7 @@ class Users(db.Model):
     first_name=db.Column(db.String(80), nullable=True)
     last_name=db.Column(db.String(80), nullable=True)
     profile_pic_addr=db.Column(db.String(200), nullable=True)
-    user_posts=db.relationship('Posts',backref='owner',lazy='dynamic')
+    user_posts=db.relationship('Posts',backref='owner',lazy='dynamic')    
     followers = db.relationship('Users', 
                                 secondary = follow, 
                                 primaryjoin = (follow.c.following_id == id),
@@ -61,13 +61,32 @@ class Posts(db.Model):
     __tablename__ = "posts"
  
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(150), nullable=False)
-    likes = db.Column(db.Integer, default=0)
+    content = db.Column(db.String(150), nullable=False)    
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.current_timestamp())
     person_id = db.Column(db.Integer, db.ForeignKey('users.id'),nullable=False)
+    likes=db.Column(db.Integer,default=0)
+
+class Comments(db.Model):
+    __tablename__ = "comments"
+ 
+    id = db.Column(db.Integer, primary_key=True)
+    comment = db.Column(db.String(150), nullable=False)      
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.current_timestamp())
+    commented_post=db.Column(db.Integer, db.ForeignKey('posts.id'),nullable=False)
+    commenter= db.Column(db.Integer, db.ForeignKey('users.id'),nullable=False)
+
+class Likes(db.Model):
+    __tablename__ = "likes"
+    id = db.Column(db.Integer, primary_key=True)
+    liked_post=db.Column(db.Integer, db.ForeignKey('posts.id'),nullable=False)
+    liker = db.Column(db.Integer, db.ForeignKey('users.id'),nullable=False)
 
 
-    
+
+
+
+
+
 
 @app.after_request
 def after_request(response):   
@@ -87,14 +106,14 @@ def index():
         # Ensure username was submitted
         if not request.form.get("current_post"):
             return render_template("index.html",message="must provide a post")
-        print(request.form.get("current_post"))
+        
         post=Posts(
             content=request.form.get("current_post"),
             person_id=session["user_id"]
         )
         db.session.add(post)
         db.session.commit()
-        print("Post added")
+        
         redirect("/")
     posts=Posts.query.order_by(Posts.created_at.desc()).all()
     user_id=session.get("user_id")
@@ -289,7 +308,61 @@ def follow_unfollow(id):
                 db.session.commit()
                 return jsonify({"Success": "unfollowed successfully.", "status":204})
 
+    
+
     return jsonify({"error": "Unsuccessful","status":404} )
+
+
+@app.route("/like_unlike/<int:post_id>", methods=["GET", "PUT"])
+@login_required
+def like_unlike(post_id):    
+
+    if request.method != "PUT":
+        return jsonify({"error": "PUT request required."})
+
+    data=request.json
+    
+    
+    
+    if data.get("like") is not None:
+
+            try:
+                current_user=Users.query.filter_by(id=session.get("user_id")).first()                
+            except :
+                return jsonify({"error": "User not found.","status":404} )
+            try:
+                post=Posts.query.filter_by(id=post_id).first()
+
+            except :
+                return jsonify({"error": "Post not found.","status":404} )
+            if data['like']:
+                likes=Likes.query.filter_by(liker=current_user.id).all()
+                liked_posts=[like.liked_post for like in likes ]
+                if not post.id in liked_posts:
+                    liked=Likes(
+                        liker=current_user.id,
+                        liked_post=post.id
+                    ) 
+                    post.likes+=1
+                    db.session.add(liked)
+                    db.session.add(post)
+                    db.session.commit()
+                    return jsonify({"Success": "Liked successfully.","status":200})
+                else:
+                    liked=Likes.query.filter((Likes.liker==current_user.id) & (Likes.liked_post==post.id)).first()
+                    post.likes-=1
+                    db.session.remove(liked)
+                    db.session.add(post)
+                    db.session.commit()
+                
+                    return jsonify({"Success": "Unliked successfully.", "status":200})
+
+    
+
+    return jsonify({"error": "Unsuccessful","status":404} )
+
+
+
 
 
 
@@ -305,25 +378,32 @@ def following():
     
     posts=Posts.query.filter(Posts.person_id.in_(following)).order_by(Posts.created_at.desc()).all()
     
-    return render_template("following.html",posts=posts,user_id=user_id)
+    return render_template("following.html",posts=posts,user_id=user_id,current_user=current_user)
 
 @app.route("/newpost", methods=["GET", "POST"])
 @login_required
 def newpost():
+    user_id=session.get("user_id")
     
-    return render_template("new_post.html",user_id=session.get("user_id"))
+    current_user=Users.query.filter_by(id=user_id).first()
+    
+    return render_template("new_post.html",user_id=session.get("user_id"),current_user=current_user)
     
 
 @app.route("/view_post/<int:post_id>", methods=["GET", "POST"])
 def view_post(post_id): 
     post=Posts.query.filter_by(id=post_id).first()
+    user_id=session.get("user_id")
+    current_user=None
+    if user_id:
+        current_user=Users.query.filter_by(id=user_id).first()
     
     if request.method=="POST":
         
         return jsonify({"post_id":post.id,"owner_id":post.person_id,"content":post.content})
 
 
-    return render_template("view_post.html",user_id=session.get("user_id"),post=post)
+    return render_template("view_post.html",user_id=session.get("user_id"),post=post,current_user=current_user)
 
 @app.route("/post_data/<int:post_id>", methods=["GET"])
 def post_data(post_id): 
@@ -387,14 +467,12 @@ def post_manipulation(post_id):
 
 @app.route("/test", methods=["GET", "POST"])
 def test():
+
+    post=Posts.query.filter_by(id=1).first()
+    current_user=Users.query.filter_by(id=4).first()   
     
-    harry =Users.query.filter_by(username='harry').first()
-    ron=Users.query.filter_by(username='Ron').first()
+    print(post.likes)
     
-    following=[user.id for user in ron.following]
-    print(following)
-    posts=Posts.query.filter(Posts.person_id.in_(following)).order_by(Posts.created_at.desc()).all()
-    print(posts)
     return render_template("test.html",user_id=session.get("user_id"))
 
 

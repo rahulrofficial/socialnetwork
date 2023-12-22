@@ -43,6 +43,8 @@
 					<div class="row">
 						<button data-post_id="{{item.id}}" id="index_view_btn_{{item.id}}" class="btn btn-outline-success mb-1 w-75 view_btn">View</button>
 					</div>
+					{% if current_user%}
+					{% if current_user.id== item.owner.id%}
 					<div class="row"><!---->
 						<button data-post_id="{{item.id}}" id="index_edit_btn_{{item.id}}" class="btn btn-outline-primary mb-1 w-75 edit_btn">Edit</button>
 						<button style="display: none;" data-post_id="{{item.id}}" id="index_submit_btn_{{item.id}}" class="btn btn-primary mb-1 w-75 submit_btn">Submit</button>
@@ -51,10 +53,12 @@
 					<div class="row">
 						<button data-post_id="{{item.id}}" id="index_delete_btn_{{item.id}}" class="btn btn-outline-danger mb-1 w-75 delete_btn">Delete</button>
 					</div>
+					{%endif%}
+					{%endif%}
 				</div>
 			</div>
-		  </div>
-		{%endfor%}
+		</div>
+		  {%endfor%}
 		
 	</div>
 

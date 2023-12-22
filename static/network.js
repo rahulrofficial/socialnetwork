@@ -19,43 +19,57 @@ if (document.getElementById("profile_div"))
             follow_unfollow(event,"follow")
         });
     }    
-
+//
 }
-if (document.getElementById("index_div"))
+if (document.getElementById("index_div") || document.getElementById("profile_div"))
 {
-
-    document.querySelectorAll(".view_btn").forEach(btn=>{
-        btn.addEventListener("click",(event)=>{
-            view=event.target
+    if (document.querySelectorAll(".view_btn")){
+        document.querySelectorAll(".view_btn").forEach(btn=>
+            {
+                btn.addEventListener("click",(event)=>
+                {
+                    view=event.target
+                
+                    window.location.replace(`/view_post/${view.dataset.post_id}`);
+                    
         
-            window.location.replace(`/view_post/${view.dataset.post_id}`);
-            
+                });
+            });
 
+    }
+    
+
+    if ( document.querySelectorAll(".delete_btn")){
+
+        document.querySelectorAll(".delete_btn").forEach(btn=>{
+            btn.addEventListener("click",(event)=>{
+                post_manipulation(event,"delete");
+    
+            });
         });
-    });
+    }
+    
+    if(document.querySelectorAll(".edit_btn"))
+    {
+        document.querySelectorAll(".edit_btn").forEach(btn=>
+            {
+                btn.addEventListener("click",(event)=>
+                {
+                    var post_id=event.target.dataset.post_id
+                    var submit=document.getElementById(`index_submit_btn_${post_id}`)
+                    
+                    var delete_btn=document.getElementById(`index_delete_btn_${post_id}`)
+                    event.target.style.display="none";
+                    
+                    delete_btn.style.display="none";
+                    submit.style.display="block";
+                    post_manipulation(event,"edit");
+                   
+                });
+            });
 
-
-    document.querySelectorAll(".delete_btn").forEach(btn=>{
-        btn.addEventListener("click",(event)=>{
-            post_manipulation(event,"delete");
-
-        });
-    });
-
-    document.querySelectorAll(".edit_btn").forEach(btn=>{
-        btn.addEventListener("click",(event)=>{
-            var post_id=event.target.dataset.post_id
-            var submit=document.getElementById(`index_submit_btn_${post_id}`)
-            
-            var delete_btn=document.getElementById(`index_delete_btn_${post_id}`)
-            event.target.style.display="none";
-            
-            delete_btn.style.display="none";
-            submit.style.display="block";
-            post_manipulation(event,"edit");
-           
-        });
-    });
+    }
+    
     
 
 
@@ -75,6 +89,7 @@ function follow_unfollow(event,action)
             "headers": {"Content-Type": "application/json"},
 			"body": JSON.stringify({
 				follow: true,
+                
 			}),
 		}).then((response) => {
             if(response.status==200){
@@ -84,16 +99,20 @@ function follow_unfollow(event,action)
 		});
 
     }
-    else if (action=="unfollow"){
+    else if (action=="unfollow")
+    {
         fetch(`/follow_unfollow/${profile_id}`, 
         {
 			"method": "PUT",
             "headers": {"Content-Type": "application/json"},
 			"body": JSON.stringify({
 				follow: false,
+                
 			}),
-		}).then((response) => {
-			if(response.status==200){
+		}).then((response) => 
+        {
+			if(response.status==200)
+            {
                 window.location.replace(`/profile/${profile_id}`);
             }
             
@@ -101,6 +120,14 @@ function follow_unfollow(event,action)
 
 
     }
+  
+    
+
+
+
+
+
+
 }
 
 function post_manipulation(event,action)
@@ -154,7 +181,7 @@ function post_manipulation(event,action)
     else if (action="delete")
     {
         var display_div=document.getElementById(`display_div_${post_id}`)
-        display_div.style.display="none";
+        
         fetch(`/post_manipulation/${post_id}`, 
                 {
                     "method": "POST",
@@ -166,7 +193,7 @@ function post_manipulation(event,action)
                     {
                         if (data.status == 200) 
                         {
-                           alert("Post Deleted Successfully");
+                            display_div.style.display="none";
                 
                         }
                     });
