@@ -90,19 +90,17 @@
 					{%endif%}
 {%for comment in comments %}
 
-
-<div class="media m-3">
-	<a class="pull-left" href="#"><img style="max-width: 100px;border-radius: 50%;" class="media-object" 
-		{%if comment.profile_pic %}
-		src="{{comment.profile_pic}}" 
-		{%else%}
+<hr>
+<div class="media container mb-5">
+	<a class="pull-left" href="#"><img style="max-width: 100px;" class="media-object" 
+		
 		src="/static/commenter.png" 
-		{%endif%}
+		
 		alt=""></a>
 	<div class="media-body">
 		<h3 style="color: blue;" class="media-heading">{{comment.commenter}}</h3>
-		<h5>{{comment.comment}}</h5>
-		<ul class="list-unstyled list-inline media-detail pull-left">
+		<p>{{comment.comment}}</p>
+		<ul class="list-unstyled media-detail pull-left">
 			<li><i class="fa fa-calendar text-muted">  {{comment.created_at}}</i></li>
 			
 		</ul>
