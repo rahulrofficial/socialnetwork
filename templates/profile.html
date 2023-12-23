@@ -62,7 +62,11 @@
                     <tr>
                         <td></td>
                         
-                        <td><button class="btn btn-danger" id="profile_edit_btn">Edit</button></td>
+                        <td>
+                            {%if is_user%}
+                            <button class="btn btn-danger" id="profile_edit_btn">Edit</button>
+                            {%endif%}
+                        </td>
                     </tr>
                     
                 </table>

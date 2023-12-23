@@ -16,18 +16,20 @@ document.addEventListener("DOMContentLoaded", function (event) {
 					follow_unfollow(event, "follow");
 				});
 		}
-        document
-			.querySelector("#profile_edit_btn")
-			.addEventListener("click", () => {
+		if( document.querySelector("#profile_edit_btn")){
+			document.querySelector("#profile_edit_btn").addEventListener("click", () => {
 				document.querySelector("#profile_edit_form").style.display = "block";
 				document.querySelector("#details_display").style.display = "none";
 			});
-		document
-			.querySelector("#profile_submit_btn")
+		}
+        if(document.querySelector("#profile_submit_btn")){
+			document.querySelector("#profile_submit_btn")
 			.addEventListener("click", () => {
 				document.querySelector("#profile_edit_form").style.display = "none";
 				document.querySelector("#details_display").style.display = "block";
 			});
+		}
+		
 		//
 	}
 	if (
@@ -41,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 			document.querySelectorAll(".view_btn").forEach((btn) => {
 				btn.addEventListener("click", (event) => {
 					view = event.target;
-
+					alert('clicked')
 					window.location.replace(`/view_post/${view.dataset.post_id}`);
 				});
 			});

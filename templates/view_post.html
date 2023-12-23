@@ -2,11 +2,11 @@
 <div id="view_post_div">
 	
 	
-	<div id="post-view" class="container-fluid py-5 w-50">
+	<div id="post-view" class="container-fluid py-5 w-75">
 		<h5 class="ms-3">View Post</h5>
 		
 
-		<div  class="border border-dark m-3 p-3 rounded">
+		<div  class="border border-dark  p-3 rounded">
 
 			<div  class="row">
 				<div class="col-9">
@@ -50,14 +50,14 @@
 	</div>
 	<section style="margin: 20px;" class="content-item" id="comments">
 		<div class="container" >   
-			<div class="row">
-				<div class="col-sm-8">   
-					<form action="/view_post/{{item.id}}" method='post'>
-						<h4 class="pull-left">New Comment</h4> <br>
+			<div class="row justify-content-center">
+				<div class="col-sm-8">  
+					
+					<form action="/view_post/{{item.id}}" method='post'>						
 						
 						<fieldset>
-							<div class="row">
-								<div class="col-sm-3 col-lg-2 hidden-xs">
+							<div style="display: flex;flex-wrap: wrap;" class="row">
+								<div class="col-2">
 									<img style="max-width: 100px;border-radius: 50%;" class="img-responsive" 
 									{% if current_user.profile_pic_addr%}
 									src="{{current_user.profile_pic_addr}}"
@@ -66,7 +66,7 @@
 									{%endif%}
 									alt="">
 								</div>
-								<div class="form-group col-xs-12 col-sm-9 col-lg-10">
+								<div class="col-9">
 									
 										{% if current_user %} 				
 																					
@@ -91,9 +91,9 @@
 {%for comment in comments %}
 
 <hr>
-<div class="row">
-	<div style="margin-bottom: 50px;" class="media container me-5">
-		<a class="pull-left" href="#"><img style="max-width: 100px;border-radius: 50%;" class="media-object" 
+<div class="row m-3">
+	<div style="margin-bottom: 30px;margin-top: 20px;" class="media">
+		<a class="pull-left me-5" href="/profile/{{comment.commenter_id}}"><img style="max-width: 100px;border-radius: 50%;" class="media-object img-thumbnail" 
 			{%if comment.profile_pic %}
 				src="{{comment.profile_pic}}" 
 				{%else%}
@@ -102,7 +102,7 @@
 			alt=""></a>
 		<div class="media-body ">
 			<h3 style="color: blue;" class="media-heading">{{comment.commenter}}</h3>
-			<p>{{comment.comment}}</p>
+			<h5>{{comment.comment}}</h5>
 			<ul class="list-unstyled media-detail ">
 				<li><i class="fa fa-calendar text-muted">  {{comment.created_at}}</i></li>
 				
@@ -117,7 +117,7 @@
 
 
 
-
+<hr>
 
 
 

@@ -469,6 +469,7 @@ def view_post(post_id):
         comm["comment"]=item.comment
         comm["commenter"]=commenter.username
         comm["profile_pic"]=commenter.profile_pic_addr
+        comm["commenter_id"]=commenter.id
         comment_data.append(comm)
     
     comm_no=len(comments)
@@ -565,12 +566,8 @@ def liked_posts():
 
 @app.route("/test", methods=["GET", "POST"])
 def test():
+   
 
-    user_id=session.get("user_id")
-    ids=Likes.query.filter_by(liker=user_id).all()  
-    post_ids=[post.liked_post for post in ids]
-    
-    
     return render_template("test.html",user_id=session.get("user_id"))
 
 
