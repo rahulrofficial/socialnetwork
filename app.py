@@ -564,16 +564,6 @@ def liked_posts():
 
 
 
-@app.route("/test", methods=["GET", "POST"])
-def test():
-   
-
-    return render_template("test.html",user_id=session.get("user_id"))
-
-
-
-
-
 
 
 
