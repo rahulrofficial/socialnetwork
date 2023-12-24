@@ -42,8 +42,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 		if (document.querySelectorAll(".view_btn")) {
 			document.querySelectorAll(".view_btn").forEach((btn) => {
 				btn.addEventListener("click", (event) => {
-					view = event.target;
-					alert('clicked')
+					view = event.target;					
 					window.location.replace(`/view_post/${view.dataset.post_id}`);
 				});
 			});

@@ -85,6 +85,7 @@ The Star Network - The Social Network uses the following libraries:
 - `Flask`: For backend.
 - `Javascript`: For Handling client-side interactions and live price updating.
 - `Bootstrap.css and bootstrap.js`: For User Dynamic Interfaces.
+- `SQLite`: For Database.
 - `Flask Dependencies` :
     1. flask_session
     2. Werkzeug
